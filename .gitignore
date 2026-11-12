@@ -43,8 +43,13 @@
 .plastic_off/
 .plastic.*/
 
-# Build output we ship as a release, not as source
-docs/build-webgl/
+# WebGL publish output IS committed - GitHub Pages serves it to judges.
+# Only the per-app build logs are noise.
+docs/build-webgl/**/build-*.log
+
+# Large intermediates Unity drops next to a WebGL build
+docs/build-webgl/**/*.pdb
+docs/build-webgl/**/Build/UnityLoader.js.map
 
 # OS noise
 .DS_Store

@@ -103,6 +103,27 @@ powershell -File tools/check-foundation-drift.ps1
 | `tools/compile-check.ps1` | Headless compile gate for both apps, prints unique CS errors |
 | `tools/check-kiro-tracked.ps1` | Assert `.kiro/` exists, is populated, and is not gitignored |
 | `tools/check-guid-integrity.ps1` | Detect duplicate or orphaned `.meta` GUIDs |
+| `tools/prepare-webgl.ps1` | Read-only pre-flight: editor, WebGL module, entry scene, GUIDs |
+| `tools/build-webgl.ps1` | Headless WebGL build into `docs/build-webgl/<app>/` |
+| `tools/publish-webgl.ps1` | Prepare a build for GitHub Pages and optionally push |
+
+## Play it without Unity
+
+A WebGL build is published from this repo via GitHub Pages:
+
+- Training Range — `https://gushu8861.github.io/duck/training-range/`
+- Grove Camp — `https://gushu8861.github.io/duck/expedition/`
+
+Build it yourself:
+
+```powershell
+powershell -File tools/prepare-webgl.ps1                              # read-only pre-flight
+powershell -File tools/build-webgl.ps1 -App training-range -Serve     # build + local server
+powershell -File tools/publish-webgl.ps1 -App training-range -Push    # stage for Pages
+```
+
+The browser build uses the same scenes as the editor; there are no WebGL-specific
+code paths.
 
 ## How Kiro was used
 

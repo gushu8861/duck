@@ -52,7 +52,13 @@ Status legend: `[x]` done · `[ ]` pending
 ## Phase 6 — Submission surface
 
 - [ ] 6.1 Record the demo video (< 3 min, public on YouTube, shows both apps running)
-- [ ] 6.2 Publish a playable WebGL build for at least one app and put the URL in the form
+- [ ] 6.2 Build and publish the WebGL targets, then put the playable URL in the form
+  - [x] 6.2a Write the missing `DuckGame.EditorTools.WebGLBuilder` build entry point (both apps)
+  - [x] 6.2b Register the real entry scenes in each app's `EditorBuildSettings.asset`
+  - [x] 6.2c `tools/prepare-webgl.ps1` — read-only pre-flight, no Unity process started
+  - [x] 6.2d `tools/build-webgl.ps1` — headless build, treats non-empty `error CS` as failure
+  - [x] 6.2e `tools/publish-webgl.ps1` — Pages landing page, `.nojekyll`, optional push
+  - [ ] 6.2f Run the build on an idle machine, then enable Pages (branch `main`, folder `/`)
 - [x] 6.3 Add the two screenshots referenced from the README
 - [x] 6.4 Write `docs/kiro-writeup.md`
 - [ ] 6.5 Fill the Devpost form: category Skeleton Crew, two app folders, Kiro write-up
