@@ -1,0 +1,63 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Guard the two-app contract",
+      "description": "Fires when the agent saves C# anywhere in the repo. Blocks edits to foundation-owned code that were made inside an app copy instead of the canonical foundation tree, because those edits are silently lost on the next sync.",
+      "trigger": "PostFileSave",
+      "matcher": "\\.cs$",
+      "action": {
+        "type": "command",
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-foundation-drift.ps1",
+        "timeout": 120
+      },
+      "enabled": true
+    },
+    {
+      "name": "Compile gate after C# save",
+      "description": "Batch-compiles the affected Unity project in headless mode and fails loudly on any CS error. Catches the 'it looked fine in the diff' class of breakage before a human opens the editor.",
+      "trigger": "PostFileSave",
+      "matcher": "\\.cs$",
+      "action": {
+        "type": "command",
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/compile-check.ps1",
+        "timeout": 900
+      },
+      "enabled": true
+    },
+    {
+      "name": "Keep .kiro out of gitignore",
+      "description": "Kiroween disqualifies submissions whose .kiro directory is gitignored. This re-checks every save of a .gitignore file and restores the exclusion if someone adds one.",
+      "trigger": "PostFileSave",
+      "matcher": "\\.gitignore$",
+      "action": {
+        "type": "command",
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-kiro-tracked.ps1",
+        "timeout": 60
+      },
+      "enabled": true
+    },
+    {
+      "name": "Scene GUID integrity",
+      "description": "A broken .meta means a scene silently loses a reference. Runs when a .meta file is saved and reports any duplicate or missing GUID that would corrupt a scene on import.",
+      "trigger": "PostFileSave",
+      "matcher": "\\.meta$",
+      "action": {
+        "type": "command",
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-guid-integrity.ps1",
+        "timeout": 180
+      },
+      "enabled": true
+    },
+    {
+      "name": "Remind: foundation changes need both apps",
+      "description": "Agent prompt hook. When the agent is about to design a change, it reminds it that any foundation edit has to be propagated to both apps, which is the single most common way this repo breaks.",
+      "trigger": "PromptSubmit",
+      "action": {
+        "type": "agent",
+        "prompt": "Before you write code: if the change touches foundation/Assets/DuckGame/{Runtime,Shaders,Art}, it must be synced into BOTH apps/training-range/unity and apps/expedition/unity. Run tools/sync-foundation.ps1 after the edit. If the change is content-only, put it in the app's own Assets/DuckGame/Maps or Generated folder and leave foundation alone."
+      },
+      "enabled": true
+    }
+  ]
+}

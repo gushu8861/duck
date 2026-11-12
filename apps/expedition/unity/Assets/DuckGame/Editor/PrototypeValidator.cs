@@ -1,0 +1,27 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
+using UnityEngine.Rendering;
+namespace DuckGame.EditorTools {
+public static class PrototypeValidator {
+ [Serializable] class Result {public bool passed;public string unity,pipeline,colorSpace;public List<string> checks=new List<string>();public List<string> failures=new List<string>();}
+ [MenuItem("Duck Game/Validate v0.3")]
+ public static void Validate(){var r=new Result{unity=Application.unityVersion,pipeline=GraphicsSettings.currentRenderPipeline!=null?GraphicsSettings.currentRenderPipeline.GetType().Name:"None",colorSpace=QualitySettings.activeColorSpace.ToString()};
+ Test(r,"single complete load and no promoted reserve",()=>{var m=new OrbMagazine();Require(!m.Tick(0,true,.8,.8),"Empty fired");m.Tick(.4,false,.8,.8);Require(m.Loaded==0&&Math.Abs(m.LoadProgress-.5)<1e-8,"Half load");m.Tick(.4,false,.8,.8);Require(m.Ready&&m.LoadProgress==1,"First ready");m.Tick(100,false,.8,.8);Require(m.Loaded==1&&!m.Staged&&m.LoadProgress==1,"Extra reserve accumulated");Require(m.Tick(0,true,.8,.8)&&m.Loaded==0&&m.LoadProgress==0,"Shot did not clear tip");Require(!m.Tick(0,true,.8,.8),"Reserve promoted");});
+ Test(r,"tap and hold share gate",()=>{var m=new OrbMagazine();m.Tick(2,false,.8,.8);Require(m.Tick(0,true,.8,.8),"Initial shot");for(int i=0;i<79;i++)Require(!m.Tick(.01,true,.8,.8),"Tap bypass");Require(m.Tick(.01,true,.8,.8),"Gate not opened");});
+ Test(r,"30 60 120 fps equal load/fire count",()=>{foreach(int fps in new[]{30,60,120}){var m=new OrbMagazine();for(int i=0;i<fps*4;i++)m.Tick(1.0/fps,true,.8,.8);Require(m.Shots==5,"FPS changed count "+fps+" "+m.Shots);}});
+ Test(r,"spike cannot catch-up burst",()=>{var m=new OrbMagazine();Require(m.Tick(10,true,.8,.8),"Spike no shot");Require(m.Shots==1&&!m.Tick(0,true,.8,.8),"Catch-up burst");});
+ Test(r,"modifier preserves normalized progress",()=>{var m=new OrbMagazine();m.Tick(.4,false,.8,.8);double before=m.LoadProgress;m.Tick(0,false,.4,.4);Require(m.LoadProgress==before,"Progress reset");m.Tick(.2,false,.4,.4);Require(m.Loaded==1,"Buff completion");m.Tick(0,true,.4,.4);m.Tick(.1,false,.4,.4);double gate=m.ShotProgress;m.Tick(0,false,1.6,1.6);Require(m.ShotProgress==gate&&m.LoadProgress>=0,"Cooldown reset/negative");});
+ Test(r,"URP and shaders",()=>{Require(r.pipeline.Contains("Universal"),"URP inactive");foreach(string n in new[]{"Duck Game/Toon URP","Duck Game/Outline URP","Duck Game/Orb Glow URP"}){var s=Shader.Find(n);Require(s!=null&&!ShaderUtil.ShaderHasError(s),"Shader error "+n);}});
+ Test(r,"persisted rig references",()=>{string path=PlaygroundBuilder.LatestScene;Require(!string.IsNullOrEmpty(path),"Build playground first");string prefab=Path.GetDirectoryName(path).Replace('\\','/')+"/PlayerRig.prefab";var go=PrefabUtility.LoadPrefabContents(prefab);try{var shooter=go.GetComponentInChildren<OrbShooter>();Require(shooter!=null&&shooter.hat!=null&&shooter.view!=null,"Rig refs missing");Require(AssetDatabase.Contains(shooter.config)&&AssetDatabase.Contains(shooter.orbMaterial),"Transient materials/config");Require(shooter.hat.centerLine.Length>=8&&shooter.hat.tipBone!=null,"Hat curve/skin refs");Require(go.GetComponentInChildren<Animator>().runtimeAnimatorController.animationClips.Distinct().Count()==7,"Seven actions lost");Require(!go.GetComponent<RuntimeVerification>().enabled,"Verification enabled by default");}finally{PrefabUtility.UnloadPrefabContents(go);}});
+ Test(r,"fast sweep, own-layer filter and blocked muzzle geometry",()=>{var scene=EditorSceneManager.NewPreviewScene();GameObject wall=null,self=null;try{wall=GameObject.CreatePrimitive(PrimitiveType.Cube);SceneManager.MoveGameObjectToScene(wall,scene);wall.transform.position=new Vector3(0,2,3);wall.transform.localScale=new Vector3(4,4,.10f);self=GameObject.CreatePrimitive(PrimitiveType.Cube);SceneManager.MoveGameObjectToScene(self,scene);self.layer=2;self.transform.position=new Vector3(0,2,1);Physics.SyncTransforms();var physics=scene.GetPhysicsScene();Require(physics.SphereCast(new Vector3(0,2,0),.1f,Vector3.forward,out var hit,100,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore)&&hit.collider.gameObject==wall,"Fast sweep or own filter");Vector3 spawn=new Vector3(0,2,5);Require(physics.SphereCast(new Vector3(0,2,0),.1f,(spawn-new Vector3(0,2,0)).normalized,out hit,5,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore),"Muzzle passed wall");Require(physics.OverlapSphere(spawn,.1f,new Collider[8],Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore)==0,"Separated start falsely overlapped");Require(physics.OverlapSphere(wall.transform.position,.1f,new Collider[8],Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore)>0,"Initial overlap undetected");}finally{EditorSceneManager.ClosePreviewScene(scene);}});
+ r.passed=r.failures.Count==0;string output="docs/verification/v03-editor-report.json";Directory.CreateDirectory(Path.GetDirectoryName(output));File.WriteAllText(output,JsonUtility.ToJson(r,true));Debug.Log("DUCK_V03_VALIDATE "+r.passed+" "+Path.GetFullPath(output));}
+ static void Test(Result r,string name,Action action){try{action();r.checks.Add(name+": PASS");}catch(Exception e){r.failures.Add(name+": "+e.Message);}}
+ static void Require(bool value,string message){if(!value)throw new Exception(message);}
+}
+}

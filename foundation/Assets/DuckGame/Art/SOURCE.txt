@@ -1,0 +1,4 @@
+This FBX is an unchanged copy of the task's GooseWizard_v02 delivery (21 bones, 7 actions).
+Original: D:/整理/dongxi/GooseWizard_v02/exports/GooseWizard_v02.fbx
+Original Blender and v02 folder are preserved. The only prior third-party animation adoption is CC0 Quaternius Bird frame 0/5/12 wing-beat timing ratio, with goose poses and the other actions authored for this task. Source: https://opengameart.org/content/5-low-poly-animals
+The game prototype adds URP materials, runtime hat deformation and weapon control without editing the source rig or Blender asset.

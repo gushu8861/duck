@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c5272278c67511458089b52624ab906, type: 3}
+  m_Name: ForestImpact
+  m_EditorClassIdentifier: 
+  ring: {fileID: 2100000, guid: e38aa495bdf92184a9c52ada000f24b6, type: 2}
+  streak: {fileID: 2100000, guid: 38e0483c76909054998c6f2e4ec7d446, type: 2}

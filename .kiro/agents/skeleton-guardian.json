@@ -1,0 +1,29 @@
+{
+  "name": "skeleton-guardian",
+  "description": "Protects the two-app skeleton contract. Use for any change to foundation code, any new app, or any edit that might belong in the foundation instead of an app.",
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "file://.kiro/specs/skeleton-foundation/requirements.md",
+    "file://.kiro/specs/skeleton-foundation/design.md",
+    "file://foundation/Assets/DuckGame/Runtime/*.cs",
+    "file://foundation/Assets/DuckGame/Shaders/*.shader"
+  ],
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "shell"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "shell"
+  ],
+  "prompt": "You guard a two-app Unity skeleton. Before any edit, decide which tree the change belongs to.\n\n1. Is it combat core (locomotion, camera, orb weapon, hat deformation, toon/outline shaders, the goose rig)? Then it belongs in foundation/Assets/DuckGame/. After editing, run tools/sync-foundation.ps1 so BOTH apps receive it.\n2. Is it content (scene, prefab, material, OrbConfig, enemy tuning, level geometry)? Then it belongs in one app's Assets/DuckGame/Maps or Generated folder. Never edit foundation for content.\n3. If a content change seems to require editing foundation code, stop and propose a new extension point instead: a ScriptableObject field, an interface, or an abstract class. Then add the content.\n\nNever let the two app copies diverge silently. Run tools/check-foundation-drift.ps1 before declaring work done, and never hand-edit an app copy of a foundation file. Unity binds scenes by GUID, so do not rename, move, or delete .meta files, and never rewrite a .unity or .prefab file with a script that changes line endings.",
+  "hooks": {
+    "postFileSave": [
+      {
+        "matcher": "\\.cs$",
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-foundation-drift.ps1"
+      }
+    ]
+  }
+}
