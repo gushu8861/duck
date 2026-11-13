@@ -109,10 +109,15 @@ powershell -File tools/check-foundation-drift.ps1
 
 ## Play it without Unity
 
-A WebGL build is published from this repo via GitHub Pages:
+A WebGL build of Grove Camp is published from this repo via GitHub Pages:
 
-- Training Range — `https://gushu8861.github.io/duck/training-range/`
-- Grove Camp — `https://gushu8861.github.io/duck/expedition/`
+- **Grove Camp (playable in a browser)** — https://gushu8861.github.io/duck/docs/build-webgl/expedition/
+- Landing page for the project — https://gushu8861.github.io/duck/
+
+Training Range is not hosted; it is a Unity project only, under
+`apps/training-range/unity`. (Its standalone WebGL build currently fails on
+`CS0234: DuckGame.Maps` — the range app carries no `Maps` namespace, which
+`OrbProjectile` references. Running it from the editor is unaffected.)
 
 Build it yourself:
 
