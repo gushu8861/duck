@@ -37,8 +37,8 @@ namespace DuckGame.EditorTools
         [MenuItem("Duck Game/Build WebGL (publish)")]
         public static void Build()
         {
-            var target = ResolveScene();
-            if (target == null)
+            var resolved = ResolveScene();
+            if (resolved == null)
             {
                 Fail("No entry scene found. Expected one of:\n" +
                      string.Join("\n", EntryScenes.Select(e => "  " + e.path)));
@@ -59,14 +59,14 @@ namespace DuckGame.EditorTools
 
             var options = new BuildPlayerOptions
             {
-                scenes = new[] { target.path },
+                scenes = new[] { resolved.Value.path },
                 locationPathName = outputDir,
                 target = BuildTarget.WebGL,
                 targetGroup = BuildTargetGroup.WebGL,
                 options = BuildOptions.None,
             };
 
-            Debug.Log($"[WebGLBuilder] scene={target.path} label={target.label} out={outputDir}");
+            Debug.Log($"[WebGLBuilder] scene={resolved.Value.path} label={resolved.Value.label} out={outputDir}");
             var report = BuildPipeline.BuildPlayer(options);
             var summary = report.summary;
 
@@ -77,7 +77,7 @@ namespace DuckGame.EditorTools
                 return;
             }
 
-            WriteManifest(outputDir, target);
+            WriteManifest(outputDir, resolved);
             Debug.Log($"[WebGLBuilder] OK size={summary.totalSize / (1024 * 1024)} MB " +
                       $"time={summary.totalTime} out={outputDir}");
         }
@@ -136,9 +136,13 @@ namespace DuckGame.EditorTools
             PlayerSettings.productName = "Duck";
             PlayerSettings.runInBackground = true;
 
-            // Compression off = host-agnostic. Brotli/Gzip need response headers that a
-            // plain static host does not send, and these builds are small anyway.
-            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
+            // Brotli plus the JS decompression fallback. Compression was previously
+            // disabled to stay host-agnostic, but that produced a 117 MB .data file,
+            // which GitHub rejects outright (100 MB per-file limit). Brotli shrinks it
+            // far below that, and decompressionFallback = true keeps the build working
+            // on hosts that send no Content-Encoding header: the loader notices the
+            // compressed payload and inflates it in JavaScript instead.
+            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
             PlayerSettings.WebGL.decompressionFallback = true;
             PlayerSettings.WebGL.template = "APPLICATION:Default";
             PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.None;

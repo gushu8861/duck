@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Duck — playable builds</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin:0; min-height:100vh; display:flex; align-items:center;
+           justify-content:center; background:#090b0f; color:#eef2f8;
+           font:16px/1.6 "Segoe UI", system-ui, -apple-system, sans-serif; }
+    main { max-width:660px; padding:2rem; }
+    h1 { font-size:1.65rem; margin:0 0 .3rem; letter-spacing:-.4px; }
+    p.lede { color:#92a0b0; margin:0 0 1.8rem; }
+    a.card { display:block; padding:1.05rem 1.2rem; margin:.65rem 0;
+             border:1px solid #283039; border-radius:12px; text-decoration:none;
+             color:inherit; background:#12161c; transition:border-color .15s, transform .15s; }
+    a.card:hover { border-color:#4d8f78; transform:translateY(-1px); }
+    a.card strong { display:block; font-size:1.05rem; }
+    a.card span { color:#8b98a5; font-size:.9rem; }
+    .muted { color:#687686; font-size:.85rem; margin-top:.5rem; }
+    footer { margin-top:2rem; color:#687686; font-size:.82rem; line-height:1.8; }
+    footer a { color:#8fb8a8; }
+    code { font-family:Consolas, monospace; background:#181e26;
+           padding:.1em .35em; border-radius:4px; font-size:.88em; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Duck</h1>
+    <p class="lede">Two standalone Unity apps built from one shared combat core.</p>
+
+    <a class="card" href="./expedition/">
+      <strong>Grove Camp &rarr;</strong>
+      <span>The same combat core carrying a merchant economy, enemies, a HUD and a full art pass.</span>
+    </a>
+
+    <p class="muted">
+      The second app (Training Range) is a Unity project in the repository rather than a
+      hosted build — see <code>apps/training-range</code>.
+    </p>
+
+    <footer>
+      Source and both Unity projects:
+      <a href="https://github.com/gushu8861/duck">github.com/gushu8861/duck</a><br>
+      Controls: WASD move &middot; Shift sprint &middot; Space jump &middot; Ctrl slide &middot;
+      mouse aim &middot; right mouse hold aim down sights &middot; left mouse fire &middot;
+      F interact &middot; Tab HUD &middot; Esc release mouse
+    </footer>
+  </main>
+</body>
+</html>

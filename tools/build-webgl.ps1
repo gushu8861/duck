@@ -67,7 +67,10 @@ Write-Output "output : $Out"
 Write-Output 'building (this takes a while for a first WebGL build)...'
 
 $sw = [System.Diagnostics.Stopwatch]::StartNew()
-$proc = Start-Process -FilePath $unityPath -PassThru -Wait -NoNewWindow -ArgumentList @(
+# No -NoNewWindow: it merges the parent environment into the child, and a proxy
+# tool on this machine exports both NO_PROXY and no_proxy, which makes
+# Start-Process throw "an item with the same key has already been added".
+$proc = Start-Process -FilePath $unityPath -PassThru -Wait -ArgumentList @(
     '-quit', '-batchmode', '-nographics',
     '-projectPath', $proj,
     '-buildTarget', 'WebGL',
