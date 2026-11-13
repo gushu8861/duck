@@ -47,6 +47,12 @@
 # Only the per-app build logs are noise.
 docs/build-webgl/**/build-*.log
 
+# Unity's own Build/ rule above matches at any depth, which silently swallowed
+# docs/build-webgl/<app>/Build/ - the folder holding the .data, .wasm and loader
+# that the page actually needs. Re-include it explicitly.
+!docs/build-webgl/**/Build/
+!docs/build-webgl/**/Build/**
+
 # Large intermediates Unity drops next to a WebGL build
 docs/build-webgl/**/*.pdb
 docs/build-webgl/**/Build/UnityLoader.js.map
